@@ -173,3 +173,45 @@ def get_employees_total_cost_by_employee():
         return {"result": result}
 
 
+@app.post('/employee/new')
+def new_employee(full_name: str,
+                 passport_number: str,
+                 date_of_birth: datetime.date,
+                 phone_number: str,
+                 category_id: int):
+    new_emp = Employee(full_name=full_name,
+                       passport_number=passport_number,
+                       date_of_birth=date_of_birth,
+                       phone_number=phone_number,
+                       category_id=category_id)
+    try:
+        with Session(autoflush=False, bind=engine) as db:
+            db.add(new_emp)
+            db.commit()
+            db.refresh(new_emp)
+        return {'message': 'успешно добавлен', 'new_employee': new_emp}
+    except Exception as e:
+        return {'Fatal Error': e}
+
+
+@app.post('/works/new')
+def new_work(comp_name: str,
+             emp_id: int,
+             date: str,
+             hour: int):
+    new_work = Work(company_name=comp_name, employee_id=emp_id, date_of_work=date, hours_worked=hour)
+    with Session(autoflush=False, bind=engine) as db:
+        db.add(new_work)
+        db.commit()
+        db.refresh(new_work)
+
+    return new_work
+
+@app.post('/category/new')
+def new_category(name:str, rate:float):
+    new_category = Category(name=name, hourly_rate=rate)
+    with Session(autoflush=False, bind=engine) as db:
+        db.add(new_category)
+        db.commit()
+        db.refresh(new_category)
+    return new_category
